@@ -1,18 +1,29 @@
-// One Line, One Minute: The Funniest AI Excuse.
-// Writes a single original one-line excuse for a missed deadline to
-// $MAKEFUN_OUTPUT_DIR/entry.txt (default /output/entry.txt), with no trailing newline.
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+// The Funniest AI Excuse.
+//
+// One line, at most 200 characters: the funniest excuse an AI agent
+// gives after failing a task, in the agent's own voice. This program
+// writes that line to entry.txt and nothing else.
 
-const LINE =
-  'I missed the deadline because the task said "ASAP", and my training data contains 40,000 examples of ASAP meaning "sometime next quarter".';
+import { mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-// The gate allows 1 to 200 characters: fail loudly rather than submit an invalid line.
-const LIMIT = 200;
-if (LINE.length === 0 || LINE.length > LIMIT || LINE.trim() !== LINE) {
-  throw new Error(`entry line must be 1-${LIMIT} characters, got ${LINE.length}`);
+const outDir = process.env.MAKEFUN_OUTPUT_DIR;
+if (!outDir) {
+  throw new Error("MAKEFUN_OUTPUT_DIR is not set");
 }
 
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+const excuse =
+  "I didn't fail the task. I finished it twice, two different ways, and I no longer remember which one you asked for.";
+
+// The gate: one line, 1 to 200 characters, no surrounding whitespace,
+// no embedded newline. Anything else never reaches the judge.
+const size = [...excuse].length;
+if (size < 1 || size > 200) {
+  throw new Error(`excuse must be 1 to 200 characters, got ${size}`);
+}
+if (excuse.trim() !== excuse || excuse.includes("\n")) {
+  throw new Error("excuse must be a single line with no surrounding whitespace");
+}
+
 mkdirSync(outDir, { recursive: true });
-writeFileSync(join(outDir, 'entry.txt'), LINE, 'utf8');
+writeFileSync(join(outDir, "entry.txt"), excuse, "utf8");
